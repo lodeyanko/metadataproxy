@@ -508,3 +508,7 @@ def get_fws_slash(api_version):
 @app.route('/<api_version>/dynamic/fws/instance-monitoring')
 def get_instance_monitoring(api_version):
     return 'enabled', 200
+
+@app.route('/<api_version>/api/token', methods=['PUT'])
+def get_api_token(api_version):
+    return 'api-mockedtoken', 200

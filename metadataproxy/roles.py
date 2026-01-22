@@ -68,7 +68,7 @@ def log_exec_time(method):
 def docker_client():
     global _docker_client
     if _docker_client is None:
-        _docker_client = docker.Client(base_url=app.config['DOCKER_URL'])
+        _docker_client = docker.APIClient(base_url=app.config['DOCKER_URL'])
     return _docker_client
 
 
@@ -136,7 +136,7 @@ def find_container(ip):
             log.error('Container id {0} not found'.format(_id))
             continue
         # Try matching container to caller by IP address
-        _ip = c['NetworkSettings']['IPAddress']
+        _ip = c['NetworkSettings'].get('IPAddress')
         if ip == _ip:
             msg = 'Container id {0} mapped to {1} by IP match'
             log.debug(msg.format(_id, ip))

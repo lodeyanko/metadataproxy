@@ -22,6 +22,20 @@ def _supports_iam(version):
     '''
     return version >= '2012-01-12'
 
+@app.route('/<api_version>/api/token', methods=['PUT'])
+def get_api_token(api_version):
+    headers = {
+        'X-aws-ec2-metadata-token-ttl-seconds': request.headers.get('X-aws-ec2-metadata-token-ttl-seconds')
+    }
+    log.info(headers)
+    req = requests.put(
+        '{0}/{1}/api/token'.format(app.config['METADATA_URL'], api_version), headers=headers, stream=True
+    )
+    return Response(
+        stream_with_context(req.iter_content()),
+        content_type=req.headers['content-type'],
+        status=req.status_code
+    )
 
 @app.route('/<api_version>/meta-data/iam/info', strict_slashes=False)
 @app.route('/<api_version>/meta-data/iam/info/<path:junk>')
@@ -74,14 +88,16 @@ def iam_sts_credentials(api_version, requested_role):
     )
     return jsonify(assumed_role)
 
-
 @app.route('/<path:url>')
 @app.route('/')
 def passthrough(url=''):
     log.debug('Did not match credentials request url; passing through.')
+    headers = {
+        'X-aws-ec2-metadata-token': request.headers.get('X-aws-ec2-metadata-token')
+    }
+    log.info(headers)
     req = requests.get(
-        '{0}/{1}'.format(app.config['METADATA_URL'], url),
-        stream=True
+        '{0}/{1}'.format(app.config['METADATA_URL'], url), headers=headers, stream=True
     )
     return Response(
         stream_with_context(req.iter_content()),

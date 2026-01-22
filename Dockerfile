@@ -1,9 +1,10 @@
-FROM python:3.6
+FROM python:3.14.2-trixie
 
 RUN mkdir /srv/metadataproxy
 COPY requirements.txt requirements_wsgi.txt /srv/metadataproxy/
 RUN pip --no-cache-dir install -r /srv/metadataproxy/requirements.txt && \
-    pip --no-cache-dir install -r /srv/metadataproxy/requirements_wsgi.txt
+    pip --no-cache-dir install -r /srv/metadataproxy/requirements_wsgi.txt && \
+    pip --no-cache-dir install setuptools
 
 RUN mkdir -p /etc/gunicorn /etc/metadataproxy
 COPY config/gunicorn.conf /etc/gunicorn/gunicorn.conf
